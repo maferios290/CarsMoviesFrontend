@@ -6,17 +6,20 @@ app = dash.Dash(__name__)
 API_BASE = "https://carsmoviesinventoryproject-production.up.railway.app/api/v1/carsmovies"
 
 def fetch_data():
-    resp = requests.get(f"{API_BASE}?page=0&size=100&sort=carMovieYear,desc")
-    if resp.status_code == 200:
-        return resp.json().get("Movies", [])
+    try:
+        resp = requests.get(f"{API_BASE}?page=0&size=100&sort=carMovieYear,desc")
+        if resp.status_code == 200:
+            return resp.json().get("Movies", [])
+    except Exception as e:
+        print("Error fetching data:", e)
     return []
 
 app.layout = html.Div(style={
-        "fontFamily": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        "backgroundColor": "#f0f2f5",
-        "minHeight": "100vh",
-        "padding": "40px"
-    }, children=[
+    "fontFamily": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    "backgroundColor": "#f0f2f5",
+    "minHeight": "100vh",
+    "padding": "40px"
+}, children=[
     html.Div(style={
         "maxWidth": "900px",
         "margin": "auto",
@@ -31,6 +34,42 @@ app.layout = html.Div(style={
             "marginBottom": "40px"
         }),
 
+        # Formulario ARRIBA
+        html.Div(style={"marginBottom": "40px"}, children=[
+            html.H3("Add / Update Movie", style={"color": "#003366", "marginBottom": "20px"}),
+            html.Div([
+                dcc.Input(id="input-id", type="hidden"),
+                dcc.Input(id="input-name", type="text", placeholder="Movie Name",
+                          style={"width": "40%", "padding": "10px", "marginRight": "15px", "borderRadius": "5px",
+                                 "border": "1px solid #ccc", "fontSize": "14px"}),
+                dcc.Input(id="input-year", type="number", placeholder="Year",
+                          style={"width": "15%", "padding": "10px", "marginRight": "15px", "borderRadius": "5px",
+                                 "border": "1px solid #ccc", "fontSize": "14px"}),
+                dcc.Input(id="input-duration", type="number", placeholder="Duration (min)",
+                          style={"width": "15%", "padding": "10px", "marginRight": "15px", "borderRadius": "5px",
+                                 "border": "1px solid #ccc", "fontSize": "14px"}),
+
+                html.Button("Save", id="btn-save", n_clicks=0, style={
+                    "backgroundColor": "#007BFF", "color": "white", "border": "none", "padding": "12px 25px",
+                    "borderRadius": "5px", "fontWeight": "bold", "cursor": "pointer",
+                    "transition": "background-color 0.3s ease"
+                }),
+
+                html.Button("Delete", id="btn-delete", n_clicks=0, style={
+                    "backgroundColor": "#dc3545", "color": "white", "border": "none", "padding": "12px 25px",
+                    "borderRadius": "5px", "marginLeft": "10px", "fontWeight": "bold", "cursor": "pointer",
+                    "transition": "background-color 0.3s ease"
+                }),
+
+                html.Button("Clear", id="btn-clear", n_clicks=0, style={
+                    "backgroundColor": "#6c757d", "color": "white", "border": "none", "padding": "12px 25px",
+                    "borderRadius": "5px", "marginLeft": "10px", "fontWeight": "bold", "cursor": "pointer",
+                    "transition": "background-color 0.3s ease"
+                }),
+            ], style={"display": "flex", "alignItems": "center"}),
+        ]),
+
+        # Tabla ABAJO
         dash_table.DataTable(
             id="movies-table",
             columns=[
@@ -63,88 +102,11 @@ app.layout = html.Div(style={
             style_as_list_view=True,
         ),
 
-        html.Div(style={"marginTop": "40px"}, children=[
-            html.H3("Add / Update Movie", style={"color": "#003366", "marginBottom": "20px"}),
-            html.Div([
-                dcc.Input(id="input-id", type="hidden"),
-
-                dcc.Input(
-                    id="input-name", type="text", placeholder="Movie Name",
-                    style={
-                        "width": "40%",
-                        "padding": "10px",
-                        "marginRight": "15px",
-                        "borderRadius": "5px",
-                        "border": "1px solid #ccc",
-                        "fontSize": "14px"
-                    }
-                ),
-                dcc.Input(
-                    id="input-year", type="number", placeholder="Year",
-                    style={
-                        "width": "15%",
-                        "padding": "10px",
-                        "marginRight": "15px",
-                        "borderRadius": "5px",
-                        "border": "1px solid #ccc",
-                        "fontSize": "14px"
-                    }
-                ),
-                dcc.Input(
-                    id="input-duration", type="number", placeholder="Duration (min)",
-                    style={
-                        "width": "15%",
-                        "padding": "10px",
-                        "marginRight": "15px",
-                        "borderRadius": "5px",
-                        "border": "1px solid #ccc",
-                        "fontSize": "14px"
-                    }
-                ),
-
-                html.Button("Save", id="btn-save", n_clicks=0, style={
-                    "backgroundColor": "#007BFF",
-                    "color": "white",
-                    "border": "none",
-                    "padding": "12px 25px",
-                    "borderRadius": "5px",
-                    "fontWeight": "bold",
-                    "cursor": "pointer",
-                    "transition": "background-color 0.3s ease"
-                }),
-
-                html.Button("Delete", id="btn-delete", n_clicks=0, style={
-                    "backgroundColor": "#dc3545",
-                    "color": "white",
-                    "border": "none",
-                    "padding": "12px 25px",
-                    "borderRadius": "5px",
-                    "marginLeft": "10px",
-                    "fontWeight": "bold",
-                    "cursor": "pointer",
-                    "transition": "background-color 0.3s ease"
-                }),
-
-                html.Button("Clear", id="btn-clear", n_clicks=0, style={
-                    "backgroundColor": "#6c757d",
-                    "color": "white",
-                    "border": "none",
-                    "padding": "12px 25px",
-                    "borderRadius": "5px",
-                    "marginLeft": "10px",
-                    "fontWeight": "bold",
-                    "cursor": "pointer",
-                    "transition": "background-color 0.3s ease"
-                }),
-            ], style={"display": "flex", "alignItems": "center"}),
-        ]),
-
         html.Div(id="message", style={"marginTop": "20px", "fontWeight": "bold"}),
-
     ])
 ])
 
-# Callback para llenar inputs al seleccionar fila
+# Callback llenar inputs al seleccionar película
 @app.callback(
     Output("input-id", "value"),
     Output("input-name", "value"),
@@ -183,25 +145,22 @@ def save_movie(n_clicks, movie_id, name, year, duration):
     headers = {"Content-Type": "application/json"}
 
     if movie_id:
-        # Actualizar (PUT)
         response = requests.put(f"{API_BASE}/{movie_id}", json=movie_payload, headers=headers)
         if response.status_code == 200:
             msg = "✔️ Película actualizada con éxito."
         else:
             msg = f"❌ Error al actualizar: {response.text}"
     else:
-        # Crear (POST)
         response = requests.post(API_BASE, json=movie_payload, headers=headers)
         if response.status_code == 201:
             msg = "✔️ Película creada con éxito."
         else:
             msg = f"❌ Error al crear: {response.text}"
 
-    # Refrescar datos
     data = fetch_data()
     return msg, data
 
-# Callback para eliminar película
+# Callback eliminar película
 @app.callback(
     Output("message", "children"),
     Output("movies-table", "data"),
@@ -215,19 +174,19 @@ def save_movie(n_clicks, movie_id, name, year, duration):
 )
 def delete_movie(n_clicks, movie_id):
     if not movie_id:
-        return "⚠️ Selecciona una película para eliminar.", dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
+        # Devuelve valores vacíos para todos los outputs
+        return "⚠️ Selecciona una película para eliminar.", dash.no_update, "", "", "", ""
 
     response = requests.delete(f"{API_BASE}/{movie_id}")
 
     if response.status_code == 204:
         msg = "✔️ Película eliminada con éxito."
         data = fetch_data()
-        # Limpiar inputs
         return msg, data, "", "", "", ""
     else:
         return f"❌ Error al eliminar: {response.text}", dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
-# Callback para limpiar inputs
+# Callback limpiar campos
 @app.callback(
     Output("input-id", "value"),
     Output("input-name", "value"),
@@ -242,5 +201,3 @@ def clear_inputs(n_clicks):
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
-
-
